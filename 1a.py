@@ -132,4 +132,71 @@ def diferenciaEntreClases(n,m):
 diferenciaEntreClases(1, 2)
 diferenciaEntreClases(2,6)
 # %%
+#y si quisiese graficar las concidencias entre las medianas de dos clases?
 
+#armo una funcion
+def coincidenciasEntreClases(n,m,p):
+    '''funcion para sacar las coincidencias  entre dos clases n y m.'''
+    fig, axes = plt.subplots(1, 3, figsize=(16,5))
+    fig.suptitle(f"coincidencias entre clase {n} y {m}",y=1, fontsize=22)
+    axes = axes.flatten()
+
+    medianas_n=SacarMedianas(n)
+    medianas_m=SacarMedianas(m)
+    
+    #armo una funcion para armar el array de coincidencias
+    def parecidos(a,b,p):
+        '''a:array, b:array, f:float.
+        Recorre los pixeles y busca los parecidos en base a un parametro p.
+        Si la diferencia entre pixeles es menor a p, los tomo cuento como parecidos'''
+        lista=[]
+        for i in range(784):
+                if abs(a[i]-b[i])<p:
+                    lista.append(a[i])
+                else:
+                    lista.append(0)
+        return np.array(lista)
+    parecidos = parecidos(medianas_m,medianas_n,p)
+
+
+    grid_ticks = np.arange(-0.5, 28, 1) # De -0.5 a 27.5 para 28x28 píxeles
+
+    img = medianas_n.reshape((28,28))
+    im = axes[0].imshow(img, cmap='gray') 
+    #axes[0].axis('off')
+    axes[0].set_xticks(grid_ticks)
+    axes[0].set_yticks(grid_ticks)
+    axes[0].set_xticklabels([])
+    axes[0].set_yticklabels([])
+    axes[0].grid(True, color='white', linewidth=0.5)
+    axes[0].set_title(f"Clase {n}",fontsize=17)
+
+    img = parecidos.reshape((28,28))
+    im = axes[1].imshow(img, cmap='hot') 
+    #axes[1].axis('off')
+    axes[1].set_xticks(grid_ticks)
+    axes[1].set_yticks(grid_ticks)
+    axes[1].set_xticklabels([])
+    axes[1].set_yticklabels([])
+    axes[1].grid(True, color='white', linewidth=0.5)
+    #agrego la barra de valores
+    cbar = axes[1].figure.colorbar(im, ax=axes[1])
+    cbar.ax.set_ylabel("valor absoluto de la diferencia", rotation=-90, va="bottom")
+
+
+    img = medianas_m.reshape((28,28))
+    im = axes[2].imshow(img, cmap='gray') 
+    #axes[2].axis('off')
+    axes[2].set_xticks(grid_ticks)
+    axes[2].set_yticks(grid_ticks)
+    axes[2].set_xticklabels([])
+    axes[2].set_yticklabels([])
+    axes[2].grid(True, color='white', linewidth=0.5)
+    axes[2].set_title(f"Clase {m}",fontsize=17)
+
+   
+    plt.tight_layout(rect=[0, 0.03, 1, 0.98]) 
+    plt.show()
+    
+coincidenciasEntreClases(2,6,40)
+coincidenciasEntreClases(2,1,40)
