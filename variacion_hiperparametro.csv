@@ -1,4 +1,4 @@
-profundidad,criterio,min_samples_split,min_samples_leaf,presicion
+profundidad,criterio,min_samples_split,min_samples_leaf,precision
 1,gini,2,1,0.1782857142857143
 1,entropy,2,1,0.1782857142857143
 1,gini,2,4,0.1782857142857143
@@ -127,3 +127,4 @@ profundidad,criterio,min_samples_split,min_samples_leaf,presicion
 10,entropy,17,7,0.7105535714285713
 10,gini,17,10,0.6991249999999999
 10,entropy,17,10,0.71025
+
