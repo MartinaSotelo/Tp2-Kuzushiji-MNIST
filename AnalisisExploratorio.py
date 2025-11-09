@@ -1,4 +1,3 @@
-
 """
 Grupo Import_milanesas
 Integrantes: 
@@ -9,7 +8,6 @@ Perez Sotelo Martina
 Exploracion del dataset
 Este archivo contiene el codigo de todos los graficos presentes en el 
 de la sección 'analisis exploratorio de los datos''
-
 """
 #%%
 # importamos las librerias que vamos a utilizar
@@ -284,7 +282,12 @@ def VariacionPorClase(clase):
 
     #aplico la funcion 'Mdia_y_Std_Por_Pixel' a la clase de interes
     media, std = Media_y_Std_Por_Pixel(clase_) 
-
+    #quiero saber cuales son los pixeles con mayor variabilidad
+    print(f'los pixeles con mayor variabilidad en la clase {clase} son:')
+    for indice, valor in enumerate(std):
+        if valor > 111:
+           print(f'{indice}:{valor}')
+           
     #armo la figura del grafico
     fig, axes = plt.subplots(1, 2, figsize=(18, 6))
     fig.suptitle(f"Análisis de Variabilidad de la Clase {clase}", y=1.02, fontsize=20)
@@ -328,7 +331,7 @@ def variacionDelDataset():
         archivo2_sinlabel=archivo2.drop('label', axis=1)
         
     media_dataset, std_dataset = Media_y_Std_Por_Pixel(archivo2_sinlabel)
-
+    
     #armo la figura del grafico
     fig, axes = plt.subplots(1, 2, figsize=(18, 6))
     fig.suptitle("Análisis de Variabilidad del Dataset ", y=1.02, fontsize=20)
@@ -451,7 +454,7 @@ def variaciones_entre_medianas(n,m):
     
     #armo la figura del grafico
     fig, axes = plt.subplots(1, 2, figsize=(18, 6))
-    fig.suptitle(f"Análisis de Variabilidad de las Clases {n} y {m}", y=1.02, fontsize=20)
+    fig.suptitle(f"Análisis de Variabilidad de las Clases {n} y {m} (medianas)", y=1.02, fontsize=20)
     axes = axes.flatten()
 
     #convierto los array de pixeles a imagen con un reshape
@@ -496,3 +499,35 @@ variaciones_entre_clases(4,5)
 
 #notar los pixeles de mayor variabilidad
 variaciones_entre_medianas(4,5)
+VariacionPorClase(4)
+VariacionPorClase(5)
+# %%
+#en esta funcion queremos ver cuales son los pixeles que mas varian entre ambas clases pero ademas que su viariacion en la misma clase sea significativa
+def variabilidadFisher(clase1,clase2):
+    consulta = f"""
+                   SELECT *
+                   FROM archivo2
+                   WHERE label = {clase1}
+                   """ 
+    clase1= dd.query(consulta).df()
+    clase1.drop('label', axis=1, inplace=True)
+
+    consulta = f"""
+                SELECT *
+                FROM archivo2
+                WHERE label = {clase2}
+                """ 
+    clase2= dd.query(consulta).df()
+    clase2.drop('label', axis=1, inplace=True)
+
+    media1, std1 = Media_y_Std_Por_Pixel(clase1) 
+    media2, std2 = Media_y_Std_Por_Pixel(clase2) 
+    v = (media1-media2)**2/(std1**2 + std2**2)
+
+    #quiero saber cuales son los pixeles con mayor variabilidad
+    print(f'los pixeles con mayor variabilidad entre clase {clase1} y clase {clase2} son:')
+    for indice, valor in enumerate(v):
+        if valor > 1:
+           print(f'{indice}:{valor}')
+           
+variabilidadFisher(4,5)
