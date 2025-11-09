@@ -361,3 +361,56 @@ variacionDelDataset()
 
 #veo por el grafico que solo las esquinas tienen poca variabilidad. Podria descartarlas.
 #Al ser pocos pixeles descartarlos quizas no tiene tanto impacto.
+
+
+#Hago un heatmap de desviacion estandar para comparar diferencias entre dos clases:
+#reutilizando casi que la misma funcion "variacionDelDataset".
+def variaciones_entre_clases(clase1,clase2):
+    ''' '''
+ #selecciono dos clases de un dataset(junto toda la informacion de ambas en un solo dataset, lo trabajo como si fuese una unica clase del punto anterior)
+    consulta = f"""
+               SELECT *
+               FROM archivo2
+               WHERE label = {clase1} OR label = {clase2}
+               """ 
+    clases= dd.query(consulta).df()
+    clases.drop('label', axis=1, inplace=True)
+
+    #aplico la funcion 'Mdia_y_Std_Por_Pixel' a las clases de interes
+    media, std = Media_y_Std_Por_Pixel(clases) 
+    
+    Sumastd=std.sum()/784 #suma promedio de la std de todos los pixeles 
+    print(f'la desviacion estandar entre las clases {clase1} y {clase2} es: {Sumastd}')
+    #armo la figura del grafico
+    fig, axes = plt.subplots(1, 2, figsize=(18, 6))
+    fig.suptitle(f"Análisis de Variabilidad de las Clases {clase1} y {clase2}", y=1.02, fontsize=20)
+    axes = axes.flatten()
+
+    #convierto los array de pixeles a imagen con un reshape
+    img_media = media.reshape((28, 28))
+    img_std = std.reshape((28, 28))
+
+    #Grafico la media
+    im0 = axes[0].imshow(img_media, cmap='magma')
+    axes[0].set_title(" Imagen Promedio (Media de Píxeles)", fontsize=16)
+    axes[0].axis('off')
+
+    # barra de color
+    cbar0 = fig.colorbar(im0, ax=axes[0], orientation='vertical', shrink=0.8)
+    cbar0.ax.set_ylabel("Intensidad de Píxel (0-255)", rotation=-90, va="bottom")
+
+
+    #Grafico la Desviación Estándar
+    im1 = axes[1].imshow(img_std, cmap='viridis') 
+    axes[1].set_title(" Mapa de Desviación Estándar (STD)", fontsize=16)
+    axes[1].axis('off')
+
+    #barra de color
+    cbar1 = fig.colorbar(im1, ax=axes[1], orientation='vertical', shrink=0.8)
+    cbar1.ax.set_ylabel("Desviación Estándar (Variación)", rotation=-90, va="bottom")
+
+    plt.tight_layout()
+    plt.show()
+    
+variaciones_entre_clases(2,1)
+variaciones_entre_clases(2,6)
