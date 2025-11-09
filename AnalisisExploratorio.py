@@ -383,7 +383,13 @@ def variaciones_entre_clases(clase1,clase2):
     #aplico la funcion 'Mdia_y_Std_Por_Pixel' a las clases de interes
     media, std = Media_y_Std_Por_Pixel(clases) 
     
+    #quiero saber cuales son los pixeles con mayor variabilidad
+    print(f'los pixeles con mayor variabilidad entre clase {clase1} y clase {clase2} son:')
+    for indice, valor in enumerate(std):
+        if valor > 111:
+           print(f'{indice}:{valor}')
     Sumastd=std.sum()/784 #suma promedio de la std de todos los pixeles 
+    
     print(f'la desviacion estandar entre las clases {clase1} y {clase2} es: {Sumastd}')
     #armo la figura del grafico
     fig, axes = plt.subplots(1, 2, figsize=(18, 6))
@@ -415,6 +421,7 @@ def variaciones_entre_clases(clase1,clase2):
 
     plt.tight_layout()
     plt.show()
+    
     
 variaciones_entre_clases(2,1)
 variaciones_entre_clases(2,6)
@@ -476,3 +483,16 @@ def variaciones_entre_medianas(n,m):
 
 variaciones_entre_medianas(2,1)
 variaciones_entre_medianas(2,6)
+
+# %%
+
+#graficos de apoyo para punto 2. Clasificacion binaria.
+
+coincidenciasEntreClases(4,5,1)
+diferenciaEntreClases(4, 5)
+
+#notar zonas de mayor variabilidad
+variaciones_entre_clases(4,5)
+
+#notar los pixeles de mayor variabilidad
+variaciones_entre_medianas(4,5)
