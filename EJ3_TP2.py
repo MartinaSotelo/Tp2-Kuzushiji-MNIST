@@ -101,10 +101,7 @@ prediction = arbol.predict(X_test)
 accuracy = accuracy_score(y_test, prediction)
 
 #%%
+from sklearn.metrics import classification_report, confusion_matrix
 
-from sklearn.metrics import confusion_matrix
-
-prediction = arbol.predict(X_test)
-matriz = confusion_matrix(y_test, prediction)
-print(matriz)
-
+print(classification_report(y_test, prediction))
+print(confusion_matrix(y_test, prediction))
