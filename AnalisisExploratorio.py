@@ -6,7 +6,9 @@ Dulio Joaquin,
 Risuleo Franco, 
 Perez Sotelo Martina
 
-exploracion del dataset
+Exploracion del dataset
+Este archivo contiene el codigo de todos los graficos presentes en el 
+de la sección 'analisis exploratorio de los datos''
 
 """
 #%%
@@ -80,7 +82,8 @@ def SacarMedianas(n):
                 WHERE label = {n}
                """
     clase_ = dd.query(consulta).df()
-    clase_.drop('label', axis=1, inplace=True) #elimino la label
+    if len(archivo2)>785: #tengo el cuidado de quitar la label si es que sigue estando
+        clase_=clase_.drop('label', axis=1)
 
     #saco la mediana de cada columna/pixel
     medianas_serie = clase_.median(numeric_only=True)
@@ -362,6 +365,7 @@ variacionDelDataset()
 #veo por el grafico que solo las esquinas tienen poca variabilidad. Podria descartarlas.
 #Al ser pocos pixeles descartarlos quizas no tiene tanto impacto.
 
+# %%
 
 #Hago un heatmap de desviacion estandar para comparar diferencias entre dos clases:
 #reutilizando casi que la misma funcion "variacionDelDataset".
@@ -414,3 +418,61 @@ def variaciones_entre_clases(clase1,clase2):
     
 variaciones_entre_clases(2,1)
 variaciones_entre_clases(2,6)
+
+# %%
+
+#Ahora quiero hacer un hetamap de desviacion estandar pero con las medias de cada clase directamente. 
+#la idea es complementar el analisis que hicimos de las coincidencias y diferencias entre las medianas anteriormente pero esta vez viendo las variabilidad
+def variaciones_entre_medianas(n,m):
+    ''' '''
+    #saco las medianas de cada clase
+    clase1=SacarMedianas(n)
+    clase2=SacarMedianas(m)
+    #las convierto a series
+    clase1 = pd.Series(clase1)
+    clase2 = pd.Series(clase2)
+    #concateno ambas series
+    clases1y2= pd.concat([clase1, clase2], axis=1)
+    
+    # Calculo la media y std a lo largo de las columnas
+    media = clases1y2.mean(axis=1, numeric_only=True)
+    std = clases1y2.std(axis=1, numeric_only=True)
+    
+    #lo paso a array
+    media=media.to_numpy()
+    std=std.to_numpy()
+    
+    #armo la figura del grafico
+    fig, axes = plt.subplots(1, 2, figsize=(18, 6))
+    fig.suptitle(f"Análisis de Variabilidad de las Clases {n} y {m}", y=1.02, fontsize=20)
+    axes = axes.flatten()
+
+    #convierto los array de pixeles a imagen con un reshape
+    img_media = media.reshape((28, 28))
+    img_std = std.reshape((28, 28))
+
+    #Grafico la media
+    im0 = axes[0].imshow(img_media, cmap='magma')
+    axes[0].set_title(" Imagen Promedio (Media de Píxeles)", fontsize=16)
+    axes[0].axis('off')
+
+    # barra de color
+    cbar0 = fig.colorbar(im0, ax=axes[0], orientation='vertical', shrink=0.8)
+    cbar0.ax.set_ylabel("Intensidad de Píxel (0-255)", rotation=-90, va="bottom")
+
+
+    #Grafico la Desviación Estándar
+    im1 = axes[1].imshow(img_std, cmap='viridis') 
+    axes[1].set_title(" Mapa de Desviación Estándar (STD)", fontsize=16)
+    axes[1].axis('off')
+
+    #barra de color
+    cbar1 = fig.colorbar(im1, ax=axes[1], orientation='vertical', shrink=0.8)
+    cbar1.ax.set_ylabel("Desviación Estándar (Variación)", rotation=-90, va="bottom")
+
+    plt.tight_layout()
+    plt.show()
+
+
+variaciones_entre_medianas(2,1)
+variaciones_entre_medianas(2,6)
