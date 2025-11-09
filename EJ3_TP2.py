@@ -2,11 +2,10 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 import pandas as pd
-import duckdb as dd
-import numpy as np
 from sklearn.model_selection import cross_val_score
+import matplotlib.pyplot as plt
 
-carpeta = "C:/Users/perei/Downloads/Datos_para_el_TP2/"
+carpeta = ""
 
 kminst = pd.read_csv(carpeta+"kmnist_classmap_char.csv")
 kuzu_full = pd.read_csv(carpeta+"kuzushiji_full.csv")
@@ -40,7 +39,7 @@ for i in range(1,11,3):
 print("Precisión en cada fold:", scores)
 print("Precisión promedio:", scores.mean())
 
-# Luego de realizar varias pruebas, se llega a la conclusion de que la presicion máxima es de aproximadamente el 73%
+# Luego de realizar varias pruebas, se llega a la conclusión de que la presicion máxima es de aproximadamente el 73%
 # con max_depth = 30, el accuracy es del 0.733%, mientras que en max_depth = 38, era del 0.735%
 # Y mas o menos a partir de profundidad 40, es que el accuracy deja de subir
 #%% 3c)
@@ -64,20 +63,41 @@ for i in range(1,11,3):
                 data1.loc[len(data1)]=[i,elem,j,k,scores.mean()]  
                 
 
+data2 = pd.DataFrame(columns=['Profundidad','Criterio','min_samples_split','min_samples_leaf','Precisión'])
+for i in range(2,50,10):
+    for j in range(2,50,10):
+        arbol = DecisionTreeClassifier(
+        criterion='entropy',
+        splitter='best',
+        max_depth=10,
+        min_samples_split=j,
+        min_samples_leaf=i,
+        random_state=2)
+        scores = cross_val_score(arbol, X_train, y_train, cv=5)
+        data2.loc[len(data2)]=[10,'entropy',j,i,scores.mean()] 
 
+#%%
+
+graf = plt.scatter(data2['min_samples_split'],data2['min_samples_leaf'], c=data2['Precisión'])
+plt.xlabel('min_samples_split')
+plt.ylabel('min_samples_leaf')
+plt.colorbar()
+plt.show()
+
+cbar = plt.colorbar(graf)
+cbar.set_label('Precisión')
 #%% 3d)
-data = pd.DataFrame(columns=['profundidad','presicion'])
+data = pd.DataFrame(columns=['Profundidad','Precisión'])
 arbol = DecisionTreeClassifier(criterion='entropy',
         splitter='best',
         max_depth=10,
         min_samples_split=2,
         min_samples_leaf=1,
         max_features=None,
-        random_state=None)
+        random_state=0)
     
-arbol.fit(X_train, y_train) # Entrenamiento del modelo
-prediction = arbol.predict(X_test) # Generamos las predicciones // llamamos al modelo
-#print(prediction)
+arbol.fit(X_train, y_train)
+prediction = arbol.predict(X_test)
 accuracy = accuracy_score(y_test, prediction)
 
 #%%
