@@ -6,12 +6,15 @@ Dulio Joaquin,
 Risuleo Franco, 
 Perez Sotelo Martina
 
+Entrenamos modelo knn para clasificacion binaria
+de las clases 4 y 5.
+
 """
 
 import pandas as pd
 import duckdb as dd
 
-carpeta = "C:/Users/risul/OneDrive/Escritorio/TP2/"
+carpeta = "/home/martina/import_milanesas_TP02/"
 
 kminst = pd.read_csv(carpeta+"kmnist_classmap_char.csv")
 kuzu_full = pd.read_csv(carpeta+"kuzushiji_full.csv")
@@ -91,12 +94,38 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report, accuracy_score
 import random
 
+
+#armar un conjunto de pixeles que contenga a estos. Ver que pasa. Yo creo que tendria que dar mejor la prediccion...
+"""los pixeles con mayor variabilidad entre clase 4 y clase 5 son:
+122:111.02075871986933
+123:111.9380869547499
+150:111.61850063989782
+151:112.16713747463827
+178:111.71238033694596
+179:111.39979353322525
+331:111.5050539917653
+342:111.50445185067507
+343:111.3912744033587
+359:111.74018106972679
+360:113.12511998004403
+370:112.56159549792135
+371:111.91295842000963
+388:113.56507449800914
+389:111.72072661315468
+398:112.29384775491697
+399:111.07586680489429
+416:112.29931665864497
+417:112.63029018562779
+426:111.66827645042022
+445:111.12800850129747"""
+
+
 #Vemos que los bordes suelen dar peor que los atributos más centrados
 modelos_knnC = pd.DataFrame(columns=["Cantidad_atributos", "Atributos_usados", "Accuracy"])
-#Bordes-bordes-medio-seguidos-cualquiercosa
-subconjuntos_de_atributos4 = [[0,27,28,55],[56,83,84,168],[17,62,92,120],[444,445,446,447],[578,612,499,702]]
-subconjuntos_de_atributos5 = [[0,27,28,55,56],[56,83,84,168,783],[17,62,92,120,355],[444,445,446,447,448],[578,612,499,702,550]]
-subconjuntos_de_atributos7 = [[0,27,28,55,56,83,84],[56,83,84,168,196,224,252],[17,62,92,120,264,148,404],[444,445,446,447,448,449,450],[578,612,499,702,123,389,12]]
+#Bordes-bordes-medio-seguidos-cualquiercosa-atributos con mayor variabilidad.
+subconjuntos_de_atributos4 = [[0,27,28,55],[56,83,84,168],[17,62,92,120],[444,445,446,447],[578,612,499,702],[416,370,360,388]]
+subconjuntos_de_atributos5 = [[0,27,28,55,56],[56,83,84,168,783],[17,62,92,120,355],[444,445,446,447,448],[578,612,499,702,550],[416,151,370,360,388]]
+subconjuntos_de_atributos7 = [[0,27,28,55,56,83,84],[56,83,84,168,196,224,252],[17,62,92,120,264,148,404],[444,445,446,447,448,449,450],[578,612,499,702,123,389,12],[151,388,398,416,370,360,388]]
 s = [subconjuntos_de_atributos4, subconjuntos_de_atributos5, subconjuntos_de_atributos7]
 for grupo_subconjuntos in s:
     cant_atributos = len(grupo_subconjuntos[0])
@@ -170,3 +199,66 @@ for cant_atributos in n_atributos:
 #con cross validation o no dan bastante parecidos igual
 
 #Usé accuracy, no veo por qué otra métrica sería más adecuada
+# %%
+
+#copie y pegue de gemini:
+
+import matplotlib.pyplot as plt
+import pandas as pd
+# Asumo que modelos_knnC y modelos_knn ya están definidos y cargados
+
+# --- Gráfico 1: Precisión vs. Cantidad de Atributos (Atributos Fijos y Aleatorios) ---
+
+plt.figure(figsize=(10, 6))
+
+# A. Atributos Fijos (modelos_knnC)
+# Usamos un color distintivo para estos puntos estratégicamente elegidos
+plt.scatter(
+    modelos_knnC['Cantidad_atributos'],
+    modelos_knnC['Accuracy'],
+    color='red',
+    marker='s', # Marcador cuadrado para diferenciar
+    s=100,      # Tamaño del marcador
+    label='Conjuntos Fijos (Ubicación Específica)'
+)
+
+# B. Atributos Aleatorios (modelos_knn)
+# Usamos un color y marcador para los aleatorios
+plt.scatter(
+    modelos_knn['Cantidad_atributos'],
+    modelos_knn['Accuracy'],
+    color='blue',
+    alpha=0.6,
+    label='Conjuntos Aleatorios'
+)
+
+# C. Configuración
+plt.title('Precisión (Accuracy) vs. Cantidad de Atributos (Clases 4 y 5)')
+plt.xlabel('Cantidad de Atributos (Píxeles) Usados')
+plt.ylabel('Precisión (Accuracy)')
+plt.ylim(0.5, 1.0) # Ajusta el límite si es necesario
+plt.legend()
+plt.grid(True, linestyle='--', alpha=0.7)
+plt.show()
+
+# --- Gráfico 2: Precisión vs. Mejor 'k' (Solo para Atributos Aleatorios) ---
+
+plt.figure(figsize=(10, 6))
+
+# Scatter plot que relaciona la precisión con el mejor 'k' encontrado para cada subconjunto
+plt.scatter(
+    modelos_knn['Mejor_n'],
+    modelos_knn['Accuracy'],
+    c=modelos_knn['Cantidad_atributos'], # Usamos la cantidad de atributos como color
+    cmap='viridis',
+    s=100
+)
+
+# C. Configuración
+plt.title('Precisión (Accuracy) vs. Mejor Valor de k (Vecinos)')
+plt.xlabel('Mejor Valor de k (Mejor n)')
+plt.ylabel('Precisión (Accuracy)')
+plt.ylim(0.5, 1.0)
+cbar = plt.colorbar(label='Cantidad de Atributos') # Añade una barra de color
+plt.grid(True, linestyle='--', alpha=0.7)
+plt.show()
