@@ -87,7 +87,6 @@ plt.show()
 cbar = plt.colorbar(graf)
 cbar.set_label('Precisión')
 #%% 3d)
-data = pd.DataFrame(columns=['Profundidad','Precisión'])
 arbol = DecisionTreeClassifier(criterion='entropy',
         splitter='best',
         max_depth=10,
@@ -95,13 +94,14 @@ arbol = DecisionTreeClassifier(criterion='entropy',
         min_samples_leaf=1,
         max_features=None,
         random_state=0)
-    
-arbol.fit(X_train, y_train)
-prediction = arbol.predict(X_test)
-accuracy = accuracy_score(y_test, prediction)
+
+scores = cross_val_score(arbol, X_train, y_train, cv=5)
+desempeño = str(scores.mean()*100)
+print("Desempeño del modelo de árbol final: " + desempeño + "%" )
 
 #%%
 from sklearn.metrics import classification_report, confusion_matrix
 
 print(classification_report(y_test, prediction))
 print(confusion_matrix(y_test, prediction))
+
