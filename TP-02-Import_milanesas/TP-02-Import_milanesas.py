@@ -524,6 +524,7 @@ VariacionPorClase(5)
 # %%
 #en esta función queremos ver cuáles son los píxeles que mas varían entre ambas clases pero además que su variación en la misma clase sea baja.
 def variabilidadFisher(A,B):
+    #selecciono clase A
     consulta = f"""
                    SELECT *
                    FROM archivo2
@@ -531,7 +532,8 @@ def variabilidadFisher(A,B):
                    """ 
     clase1= dd.query(consulta).df()
     clase1.drop('label', axis=1, inplace=True)
-
+    
+    #selecciono clase B
     consulta = f"""
                 SELECT *
                 FROM archivo2
@@ -541,8 +543,8 @@ def variabilidadFisher(A,B):
     clase2.drop('label', axis=1, inplace=True)
 
     media1, std1 = Media_y_Std_Por_Pixel(clase1) 
-    media2, std2 = Media_y_Std_Por_Pixel(clase2) 
-    v = (media1-media2)*2/(std12 + std2*2)
+    media2, std2 = Media_y_Std_Por_Pixel(clase2) #saco medias y std de ambas clases
+    v = (media1-media2)**2/(std1**2 + std2**2) #ecuacion de variabilidad de fisher
 
     #quiero saber cuáles son los píxeles con mayor variabilidad
     print(f'los píxeles con mayor variabilidad entre clase {A} y clase {B} son:')
@@ -779,7 +781,7 @@ with open(ruta_reporte, 'w') as archivo:
     archivo.write(reporteModelo)
 
 #realizo la matriz de confusion
-etiquetas_clase = np.unique(y_test) #   ME guardo las etiquetas
+etiquetas_clase = np.unique(y_test) #  ME guardo las etiquetas
 matriz_confusion_array = confusion_matrix(y_test, prediction, labels=etiquetas_clase)
 
 #paso a dataframe con las etiquetas
