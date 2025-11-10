@@ -1,4 +1,3 @@
-
 """
 Grupo Import_milanesas
 Integrantes: 
@@ -9,7 +8,7 @@ Perez Sotelo Martina
 Este archivo contiene todo el codigo utilizado para realizarel analisis exploratorio de los datos, los experimentos de clasificacion binaria
 y multiclase.
 
-Todos los graficos, tablas y resultados se encuentran aca detallados.
+Todos los gráficos, tablas y resultados se encuentran acá detallados.
 
 Separamos el codigo en tres secciones correspondientes al punto 1, 2 y 3 del TP.
 
@@ -43,12 +42,12 @@ archivo2= pd.read_csv(carpeta+"kuzushiji_full.csv")
 #%%###################################################
 #                   PUNTO 1 
 ######################################################
-''' En esta seccion realizamos el Analisis exploratorio del dataset
-todos los graficos correspondientes a la introduccion y seccion analisis exploratorio del informe
-se encuentran aca'''
+''' En esta seccion realizamos el análisis exploratorio del dataset
+todos los gráficos correspondientes a la introducción y sección análisis exploratorio del informe
+se encuentran acá''' 
 
 
-# %% Armo un grafico para visualizar una imagen por cada clase
+# %% Armo un gráfico para visualizar una imagen por cada clase
 
 #armo la figura
 fig, axes = plt.subplots(2, 5, figsize=(26,10))
@@ -56,7 +55,7 @@ fig.suptitle("Grafico por Clase",y=1, fontsize=32)
 axes = axes.flatten()
    
 for i, clase in enumerate(range(10)):
-    ax = axes[i] #selecciono el espacio del grafico
+    ax = axes[i] #selecciono el espacio del gráfico 
     
     #selecciono la clase
     consulta = f"""
@@ -70,7 +69,7 @@ for i, clase in enumerate(range(10)):
     #elijo un representante aleatorio de cada clase
     claseRep = clase_.iloc[rd.randint(0,7000-1)].values
     
-    #grafico
+    #gráfico
     img = claseRep.reshape((28, 28)) #reordeno los pixeles
     ax.imshow(img, cmap='grey')
     ax.set_title(f"Clase {clase}",fontsize=26)
@@ -79,13 +78,13 @@ for i, clase in enumerate(range(10)):
 plt.tight_layout()
 plt.show()
 
-# %% quiero ver cual es el valor maximo de intensidad que toman los pixeles
+# %% quiero ver cuál es el valor máximo de intensidad que toman los píxeles 
 consulta = """
            SELECT MAX("1")
            FROM archivo2
            """
 MaximoValorPixel = dd.query(consulta).df()
-print(MaximoValorPixel) #Veo que los pixeles toman como mucho valor de intensidad 255 
+print(MaximoValorPixel) #Veo que los píxeles toman como mucho valor de intensidad 255 
 
 
 # %%Armo un heat map que me muestre la mediana del valor que toma cada pixel. lo hago para cada clase.
@@ -95,9 +94,9 @@ fig, axes = plt.subplots(2, 5, figsize=(26,9))
 fig.suptitle("HeatMap de Mediana por Clase",y=1, fontsize=22)
 axes = axes.flatten()
 
-#armo una funcion para calcular todas las medianas de cada pixel por clases
+#armo una función para calcular todas las medianas de cada píxel por clases
 def SacarMedianas(n):
-    '''funcion para sacar la mediana de una clase n'''
+    '''función para sacar la mediana de una clase n'''
     consulta = f""" 
                 SELECT (*) 
                 FROM archivo2 
@@ -113,9 +112,9 @@ def SacarMedianas(n):
 
     return medianas
 
-#bucle para ir generando los graficos
+#bucle para ir generando los gráficos 
 for i, label in enumerate(range(10)):
-    ax = axes[i] #selecciono el espacio del grafico
+    ax = axes[i] #selecciono el espacio del gráfico 
     
     medianas=SacarMedianas(i) #calculo las medianas
     
@@ -133,11 +132,11 @@ plt.show()
 
 
 # %%
-#ahora me gustaria sacar la diferencia entre las medianas de dos clases
+#ahora me gustaría sacar la diferencia entre las medianas de dos clases
 
 def diferenciaEntreClases(n,m):
     '''n:int (entre 0 y 9), m:int (entre 0 y 9)
-    funcion para sacar la diferencia absoluta entre dos clases n y m.'''
+    función para sacar la diferencia absoluta entre dos clases n y m.'''
     fig, axes = plt.subplots(1, 3, figsize=(16,5))
     fig.suptitle(f"diferencia entre clase {n} y {m}",y=1, fontsize=22)
     axes = axes.flatten()
@@ -147,7 +146,7 @@ def diferenciaEntreClases(n,m):
     Diferencias=abs(medianas_n-medianas_m)
     
     ValorDiferenciaEntreClases=Diferencias.sum()
-    print(f'la suma de las diferencias absoluta de pixeles entre las clases {n} y {m} es: {ValorDiferenciaEntreClases}')
+    print(f'la suma de las diferencias absoluta de píxeles entre las clases {n} y {m} es: {ValorDiferenciaEntreClases}')
 
     grid_ticks = np.arange(-0.5, 28, 1) # De -0.5 a 27.5 para 28x28 píxeles
 
@@ -188,18 +187,18 @@ def diferenciaEntreClases(n,m):
     plt.tight_layout(rect=[0, 0.03, 1, 0.98]) 
     plt.show()
 
-#aplico la funcion en las clases de interes y grafico:    
+#aplico la función en las clases de interés y grafico:    
 diferenciaEntreClases(1,2)
 diferenciaEntreClases(2,6)
-# %% ahora me pregunto: y si quisiese graficar las 'concidencias' entre las medianas de dos clases?
-#voy a armar una funcion que dependiendo de un parametro p
-#tome como coincidencias todos los pixeles tales que
+# %% ahora me pregunto: y si quisiese graficar las 'coincidencias' entre las medianas de dos clases?
+#voy a armar una función que dependiendo de un parámetro p
+#tome como coincidencias todos los píxeles tales que
 #la diferencia del valor entre ellos sea menor a p.
-# de esta forma puedo elegir cual es el valor maximo de diferencia que considero como 'valores parecidos'
+# de esta forma puedo elegir cuál es el valor máximo de diferencia que considero como 'valores parecidos'
 def coincidenciasEntreClases(n,m,p):
     '''
     n:int (entre 0 y 9), m:int (entre 0 y 9). p:float.
-    funcion para sacar las coincidencias  entre dos clases n y m. Dependiendo de un parametro p'''
+    función para sacar las coincidencias  entre dos clases n y m. Dependiendo de un parámetro p'''
     fig, axes = plt.subplots(1, 3, figsize=(16,5)) #armo la figura
     fig.suptitle(f"coincidencias entre clase {n} y {m}",y=1, fontsize=22)
     axes = axes.flatten()
@@ -207,11 +206,11 @@ def coincidenciasEntreClases(n,m,p):
     medianas_n=SacarMedianas(n)
     medianas_m=SacarMedianas(m)
     
-    #armo una funcion para armar el array de coincidencias
+    #armo una función para armar el array de coincidencias
     def parecidos(a,b,p):
         '''a:array, b:array, f:float.
-        Recorre los pixeles y busca los parecidos en base a un parametro p.
-        Si la diferencia entre pixeles es menor a p, los tomo cuento como parecidos'''
+        Recorre los píxeles y busca los parecidos en base a un parámetro p.
+        Si la diferencia entre píxeles es menor a p, los tomo cuento como parecidos'''
         lista=[]
         for i in range(784):
                 if abs(a[i]-b[i])<p:
@@ -219,16 +218,16 @@ def coincidenciasEntreClases(n,m,p):
                 else:
                     lista.append(0)
         return np.array(lista)
-    parecidos = parecidos(medianas_m,medianas_n,p) #aplico la funcion a las medianas de las dos clases m y n
+    parecidos = parecidos(medianas_m,medianas_n,p) #aplico la función a las medianas de las dos clases m y n
     SumaParecidos=parecidos.sum()
     titulo_coincidencias = f"Píxeles Coincidentes: {SumaParecidos} (p < {p})"
     print(f'(tomando como parecidos cuya diferencia sea menor a {p})') 
-    print(f'la suma de las coincidencias de pixeles entre las clases {n} y {m} es: {SumaParecidos}') #cuantitativamente veo por la terminal cuantos pixeles coinciden
+    print(f'la suma de las coincidencias de píxeles entre las clases {n} y {m} es: {SumaParecidos}') #cuantitativamente veo por la terminal cuantos píxeles coinciden
 
-    #armo los graficos:
+    #armo los gráficos:
     grid_ticks = np.arange(-0.5, 28, 1) # De -0.5 a 27.5 para 28x28 píxeles 
     
-    #grafico de n
+    #gráfico de n
     img = medianas_n.reshape((28,28))
     im = axes[0].imshow(img, cmap='gray') 
     #axes[0].axis('off')
@@ -239,7 +238,7 @@ def coincidenciasEntreClases(n,m,p):
     axes[0].grid(True, color='white', linewidth=0.5)
     axes[0].set_title(f"Clase {n}",fontsize=17)
     
-    #grafico de las coincidencias:
+    #gráfico de las coincidencias:
     colors = ['white','blue']
     cmap = mcolors.ListedColormap(colors)
     
@@ -270,14 +269,14 @@ def coincidenciasEntreClases(n,m,p):
     
     plt.tight_layout(rect=[0, 0.03, 1, 0.98]) 
     plt.show()
-#aplico la funcion para graficar las clases de interes
+#aplico la función para graficar las clases de interes
 coincidenciasEntreClases(2,6,50)
 coincidenciasEntreClases(2,1,50)
 coincidenciasEntreClases(2,6,1)
 coincidenciasEntreClases(2,1,1)
 
-# %%Quiero comparar imagenes de una misma clase que tan parecidos son/que tanto varian.
-#defino una funcion para encontrar la media y el std
+# %%Quiero comparar imagenes de una misma clase: qué tan parecidos son/qué tanto varían.
+#defino una función para encontrar la media y la desviación estándar (std)
 def Media_y_Std_Por_Pixel(dataset):
     """
     Calcula la Media y la Desviación Estándar
@@ -294,7 +293,7 @@ def Media_y_Std_Por_Pixel(dataset):
 
 def VariacionPorClase(clase):
     '''clase:int(entre 0 y 9)
-    funcion para graficar la variacion de los pixeles de una clase con un heatmap'''
+    función para graficar la variación de los píxeles de una clase con un heatmap'''
     #selecciono la clase
     consulta = f"""
                SELECT *
@@ -304,20 +303,20 @@ def VariacionPorClase(clase):
     clase_= dd.query(consulta).df()
     clase_.drop('label', axis=1, inplace=True)
 
-    #aplico la funcion 'Mdia_y_Std_Por_Pixel' a la clase de interes
+    #aplico la función 'Mdia_y_Std_Por_Pixel' a la clase de interes
     media, std = Media_y_Std_Por_Pixel(clase_) 
-    #quiero saber cuales son los pixeles con mayor variabilidad
-    print(f'los pixeles con mayor variabilidad en la clase {clase} son:')
+    #quiero saber cuáles son los píxeles con mayor variabilidad
+    print(f'los píxeles con mayor variabilidad en la clase {clase} son:')
     for indice, valor in enumerate(std):
         if valor > 111:
            print(f'{indice}:{valor}')
            
-    #armo la figura del grafico
+    #armo la figura del gráfico 
     fig, axes = plt.subplots(1, 2, figsize=(18, 6))
     fig.suptitle(f"Análisis de Variabilidad de la Clase {clase}", y=1.02, fontsize=20)
     axes = axes.flatten()
 
-    #convierto los array de pixeles a imagen con un reshape
+    #convierto los array de píxeles a imagen con un reshape
     img_media = media.reshape((28, 28))
     img_std = std.reshape((28, 28))
 
@@ -344,24 +343,21 @@ def VariacionPorClase(clase):
     plt.show()
     
 VariacionPorClase(8)
-#veo que 
-# %% Y si saco la desviacion estandar para todo el dataset? 
-#osea todas las clases juntas? hay algun valor que no varie? 
-#osea que no aporte informacion y pueda descartar?
+# %% Y si saco la desviación estandar para todo el dataset? Es decir, todas las clases juntas. Hay algún valor que no varíe y pueda descartar?
 
-#reutilizo mi funcion Media_y_Std_Por_Pixel y la aplico a todo el dataset entero
+#reutilizo mi función Media_y_Std_Por_Pixel y la aplico a todo el dataset entero
 def variacionDelDataset():
     if len(archivo2)>785: #tengo el cuidado de quitar la label si es que sigue estando
         archivo2_sinlabel=archivo2.drop('label', axis=1)
         
     media_dataset, std_dataset = Media_y_Std_Por_Pixel(archivo2_sinlabel)
     
-    #armo la figura del grafico
+    #armo la figura del gráfico 
     fig, axes = plt.subplots(1, 2, figsize=(18, 6))
     fig.suptitle("Análisis de Variabilidad del Dataset ", y=1.02, fontsize=20)
     axes = axes.flatten()
 
-    #convierto los array de pixeles a imagen con un reshape
+    #convierto los array de píxeles a imagen con un reshape
     img_media = media_dataset.reshape((28, 28))
     img_std = std_dataset.reshape((28, 28))
 
@@ -389,16 +385,16 @@ def variacionDelDataset():
 
 variacionDelDataset()
 
-#veo por el grafico que solo las esquinas tienen poca variabilidad. Podria descartarlas.
-#Al ser pocos pixeles descartarlos quizas no tiene tanto impacto.
+#veo por el gráfico que solo las esquinas tienen poca variabilidad. Podría descartarlas.
+#Al ser pocos pixeles, descartarlos quizás no tiene tanto impacto.
 
 # %%
 
-#Hago un heatmap de desviacion estandar para comparar diferencias entre dos clases:
-#reutilizando casi que la misma funcion "variacionDelDataset".
+#Hago un heatmap de desviación estándar para comparar diferencias entre dos clases:
+#reutilizando casi que la misma función "variacionDelDataset".
 def variaciones_entre_clases(clase1,clase2):
     ''' '''
- #selecciono dos clases de un dataset(junto toda la informacion de ambas en un solo dataset, lo trabajo como si fuese una unica clase del punto anterior)
+ #selecciono dos clases de un dataset(junto toda la información de ambas en un solo dataset, lo trabajo como si fuese una única clase del punto anterior)
     consulta = f"""
                SELECT *
                FROM archivo2
@@ -407,23 +403,23 @@ def variaciones_entre_clases(clase1,clase2):
     clases= dd.query(consulta).df()
     clases.drop('label', axis=1, inplace=True)
 
-    #aplico la funcion 'Mdia_y_Std_Por_Pixel' a las clases de interes
+    #aplico la función 'Mdia_y_Std_Por_Pixel' a las clases de interés 
     media, std = Media_y_Std_Por_Pixel(clases) 
     
-    #quiero saber cuales son los pixeles con mayor variabilidad
-    print(f'los pixeles con mayor variabilidad entre clase {clase1} y clase {clase2} son:')
+    #quiero saber cuáles son los píxeles con mayor variabilidad
+    print(f'los píxeles con mayor variabilidad entre clase {clase1} y clase {clase2} son:')
     for indice, valor in enumerate(std):
         if valor > 111:
            print(f'{indice}:{valor}')
-    Sumastd=std.sum()/784 #suma promedio de la std de todos los pixeles 
+    Sumastd=std.sum()/784 #suma promedio de la std de todos los píxeles 
     
-    print(f'la desviacion estandar entre las clases {clase1} y {clase2} es: {Sumastd}')
-    #armo la figura del grafico
+    print(f'la desviación estándar entre las clases {clase1} y {clase2} es: {Sumastd}')
+    #armo la figura del gráfico 
     fig, axes = plt.subplots(1, 2, figsize=(18, 6))
     fig.suptitle(f"Análisis de Variabilidad de las Clases {clase1} y {clase2}", y=1.02, fontsize=20)
     axes = axes.flatten()
 
-    #convierto los array de pixeles a imagen con un reshape
+    #convierto los array de píxeles a imagen con un reshape
     img_media = media.reshape((28, 28))
     img_std = std.reshape((28, 28))
 
@@ -455,8 +451,8 @@ variaciones_entre_clases(2,6)
 
 # %%
 
-#Ahora quiero hacer un hetamap de desviacion estandar pero con las medias de cada clase directamente. 
-#la idea es complementar el analisis que hicimos de las coincidencias y diferencias entre las medianas anteriormente pero esta vez viendo las variabilidad
+#Ahora quiero hacer un heatmap de desviación estándar pero con las medias de cada clase directamente. 
+#la idea es complementar el análisis que hicimos de las coincidencias y diferencias entre las medianas anteriormente pero esta vez viendo las variabilidad
 def variaciones_entre_medianas(n,m):
     ''' '''
     #saco las medianas de cada clase
@@ -476,12 +472,12 @@ def variaciones_entre_medianas(n,m):
     media=media.to_numpy()
     std=std.to_numpy()
     
-    #armo la figura del grafico
+    #armo la figura del gráfico 
     fig, axes = plt.subplots(1, 2, figsize=(18, 6))
     fig.suptitle(f"Análisis de Variabilidad de las Clases {n} y {m} (medianas)", y=1.02, fontsize=20)
     axes = axes.flatten()
 
-    #convierto los array de pixeles a imagen con un reshape
+    #convierto los array de píxeles a imagen con un reshape
     img_media = media.reshape((28, 28))
     img_std = std.reshape((28, 28))
 
@@ -513,7 +509,7 @@ variaciones_entre_medianas(2,6)
 
 # %%
 
-#graficos de apoyo para punto 2. Clasificacion binaria.
+#gráficos de apoyo para el punto 2. Clasificacion binaria.
 
 coincidenciasEntreClases(4,5,1)
 diferenciaEntreClases(4, 5)
@@ -526,7 +522,7 @@ variaciones_entre_medianas(4,5)
 VariacionPorClase(4)
 VariacionPorClase(5)
 # %%
-#en esta funcion queremos ver cuales son los pixeles que mas varian entre ambas clases pero ademas que su viariacion en la misma clase sea significativa
+#en esta función queremos ver cuáles son los píxeles que mas varían entre ambas clases pero además que su variación en la misma clase sea baja.
 def variabilidadFisher(A,B):
     consulta = f"""
                    SELECT *
@@ -546,21 +542,20 @@ def variabilidadFisher(A,B):
 
     media1, std1 = Media_y_Std_Por_Pixel(clase1) 
     media2, std2 = Media_y_Std_Por_Pixel(clase2) 
-    v = (media1-media2)**2/(std1**2 + std2**2)
+    v = (media1-media2)*2/(std12 + std2*2)
 
-    #quiero saber cuales son los pixeles con mayor variabilidad
-    print(f'los pixeles con mayor variabilidad entre clase {A} y clase {B} son:')
+    #quiero saber cuáles son los píxeles con mayor variabilidad
+    print(f'los píxeles con mayor variabilidad entre clase {A} y clase {B} son:')
     for indice, valor in enumerate(v):
         if valor > 1:
            print(f'{indice}:{valor}')
            
 variabilidadFisher(4,5)
 
-
 #%%###################################################
 #                   PUNTO 2
 ######################################################
-'''En esta seccion de codigo buscamos entrenar un modelo knn para clasificacion binaria
+'''En esta seccion de código buscamos entrenar un modelo knn para clasificacion binaria
 de las clases 4 y 5. '''
 
 #volvemos a abrir los archivos en una nueva variable para que no se pise con las modificaciones que hicimos en la seccion anterior.
