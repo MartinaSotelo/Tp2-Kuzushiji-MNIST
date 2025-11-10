@@ -524,29 +524,30 @@ VariacionPorClase(4)
 VariacionPorClase(5)
 # %%
 #en esta funcion queremos ver cuales son los pixeles que mas varian entre ambas clases pero ademas que su viariacion en la misma clase sea significativa
-def variabilidadFisher(clase1,clase2):
+def variabilidadFisher(A,B):
     consulta = f"""
                    SELECT *
                    FROM archivo2
-                   WHERE label = {clase1}
+                   WHERE label = {A}
                    """ 
     clase1= dd.query(consulta).df()
-    clase1.drop('label', axis=1, inplace=True)
+    clase1.drop('label', axis=1, inplace=True) #selecciono clase A
 
     consulta = f"""
                 SELECT *
                 FROM archivo2
-                WHERE label = {clase2}
+                WHERE label = {B}
                 """ 
     clase2= dd.query(consulta).df()
-    clase2.drop('label', axis=1, inplace=True)
+    clase2.drop('label', axis=1, inplace=True) #selecciono clase B
 
-    media1, std1 = Media_y_Std_Por_Pixel(clase1) 
+    media1, std1 = Media_y_Std_Por_Pixel(clase1)  #saco medias y std
     media2, std2 = Media_y_Std_Por_Pixel(clase2) 
-    v = (media1-media2)**2/(std1**2 + std2**2)
+   
+    v = (media1-media2)**2/(std1**2 + std2**2) #aplico ecuacion de variabilidad de fisher
 
-    #quiero saber cuales son los pixeles con mayor variabilidad
-    print(f'los pixeles con mayor variabilidad entre clase {clase1} y clase {clase2} son:')
+    #quiero saber cuales son los pixeles con mayor variabilidad fisher para luego utilizar esa info en punto 2.
+    print(f'los pixeles con mayor variabilidad fisher entre clase {A} y clase {B} son:')
     for indice, valor in enumerate(v):
         if valor > 1:
            print(f'{indice}:{valor}')
