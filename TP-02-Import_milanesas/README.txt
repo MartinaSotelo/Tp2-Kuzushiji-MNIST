@@ -39,5 +39,6 @@ El codigo se encuentra separado en tres secciones principales:
         classification_report: Métricas por clase (Precisión, Recall, F1-Score)
         confusion_matrix: Visualización de las confusiones entre las 10 clases.
 
+Las tablas resultadas del punto 2 y 3 se guardan en carpetas resultado_binario y resultado_multiclase respectivamente.
 
 Autores: Dulio Joaquin, Risuleo Franco, Perez Sotelo Martina
