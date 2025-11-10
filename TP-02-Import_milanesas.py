@@ -6,21 +6,24 @@ Dulio Joaquin,
 Risuleo Franco, 
 Perez Sotelo Martina
 
-Este archivo contiene todo el codigo utilizado para realizar
-el analisis exploratorio de los datos, los experimentos de clasificacion binaria
+Este archivo contiene todo el codigo utilizado para realizarel analisis exploratorio de los datos, los experimentos de clasificacion binaria
 y multiclase.
+
 Todos los graficos, tablas y resultados se encuentran aca detallados.
+
 Separamos el codigo en tres secciones correspondientes al punto 1, 2 y 3 del TP.
 
 """
-
-# importamos todas las librerias que vamos a utilizar
+#%%#%%#############################################
+#importamos todas las librerias que vamos a utilizar
+###################################################
 import pandas as pd
 import numpy as np
 import duckdb as dd
 import random as rd
+import os
 
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt 
 import matplotlib.colors as mcolors
 
 from sklearn.model_selection import train_test_split
@@ -30,6 +33,13 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import cross_val_score
 from sklearn.metrics import classification_report, confusion_matrix
 
+#%%#%%#%%#########################################
+#              Abrimos archivos
+###################################################
+carpeta = "/home/martina/import_milanesas_TP02/" #poner nombre del path donde se encuentre los archivos
+
+archivo1= pd.read_csv(carpeta+"kmnist_classmap_char.csv") #leemos los archivos
+archivo2= pd.read_csv(carpeta+"kuzushiji_full.csv")
 #%%###################################################
 #                   PUNTO 1 
 ######################################################
@@ -37,13 +47,6 @@ from sklearn.metrics import classification_report, confusion_matrix
 todos los graficos correspondientes a la introduccion y seccion analisis exploratorio del informe
 se encuentran aca'''
 
-#%%
-
-carpeta = "/home/martina/import_milanesas_TP02/" #poner nombre del path donde se encuentre los archivos
-
-
-archivo1= pd.read_csv(carpeta+"kmnist_classmap_char.csv") #leemos los archivos
-archivo2= pd.read_csv(carpeta+"kuzushiji_full.csv")
 
 # %% Armo un grafico para visualizar una imagen por cada clase
 
@@ -531,7 +534,7 @@ def variabilidadFisher(A,B):
                    WHERE label = {A}
                    """ 
     clase1= dd.query(consulta).df()
-    clase1.drop('label', axis=1, inplace=True) #selecciono clase A
+    clase1.drop('label', axis=1, inplace=True)
 
     consulta = f"""
                 SELECT *
@@ -539,15 +542,14 @@ def variabilidadFisher(A,B):
                 WHERE label = {B}
                 """ 
     clase2= dd.query(consulta).df()
-    clase2.drop('label', axis=1, inplace=True) #selecciono clase B
+    clase2.drop('label', axis=1, inplace=True)
 
-    media1, std1 = Media_y_Std_Por_Pixel(clase1)  #saco medias y std
+    media1, std1 = Media_y_Std_Por_Pixel(clase1) 
     media2, std2 = Media_y_Std_Por_Pixel(clase2) 
-   
-    v = (media1-media2)**2/(std1**2 + std2**2) #aplico ecuacion de variabilidad de fisher
+    v = (media1-media2)**2/(std1**2 + std2**2)
 
-    #quiero saber cuales son los pixeles con mayor variabilidad fisher para luego utilizar esa info en punto 2.
-    print(f'los pixeles con mayor variabilidad fisher entre clase {A} y clase {B} son:')
+    #quiero saber cuales son los pixeles con mayor variabilidad
+    print(f'los pixeles con mayor variabilidad entre clase {A} y clase {B} son:')
     for indice, valor in enumerate(v):
         if valor > 1:
            print(f'{indice}:{valor}')
@@ -624,7 +626,13 @@ for grupo_subconjuntos in s:
         y_pred = knn.predict(sub_X_test)
         accuracy = accuracy_score(y_test, y_pred)
         modelos_knnC.loc[len(modelos_knnC)] = [cant_atributos, atributos, accuracy]
-modelos_knnC.to_csv('Acuracy_Atributos_modelosKnn.csv', index=False)
+        
+#creo una carpeta para guardar mis resultados
+carpeta = 'Resultados_Binario' 
+os.makedirs(carpeta, exist_ok=True)
+
+ruta_knnC = os.path.join(carpeta, 'ModeloKnnC.csv')
+modelos_knnC.to_csv(ruta_knnC, index=False)
 
 #%%
 #Este código genera atributos aleatorios, entrena un knn en base a esos atributos (testea el mejor n
@@ -653,8 +661,14 @@ for cant_atributos in n_atributos:
                 mejor_accuracy = accuracy
                 mejor_n = n
         modelos_knn.loc[len(modelos_knn)] = [cant_atributos, atributos, mejor_n, mejor_accuracy]
-modelos_knn.to_csv('Acuracy_CantAtributos_MejorK_modelosKnn.csv', index=False)
-        
+
+#guardo mis resultados en una carpeta
+carpeta = 'Resultados_Binario' 
+os.makedirs(carpeta, exist_ok=True)
+
+ruta_knn = os.path.join(carpeta, 'ModeloKnn.csv')
+modelos_knn.to_csv(ruta_knn, index=False)
+
 #%%###################################################
 #                   PUNTO 3
 ######################################################
@@ -714,33 +728,35 @@ print("Precisión promedio:", scores.mean())
                 
 
 #(!)este codigo tardo aproximadamente 20 minutos en correr.
-data2 = pd.DataFrame(columns=['Profundidad','Criterio','min_samples_split','min_samples_leaf','Precisión'])
-for i in range(2,50,10):
-    for j in range(2,50,10):
-        arbol = DecisionTreeClassifier(
-        criterion='entropy',
-        splitter='best',
-        max_depth=10,
-        min_samples_split=j,
-        min_samples_leaf=i,
-        random_state=2)
-        scores = cross_val_score(arbol, X_train, y_train, cv=5)
-        data2.loc[len(data2)]=[10,'entropy',j,i,scores.mean()] 
+# data2 = pd.DataFrame(columns=['Profundidad','Criterio','min_samples_split','min_samples_leaf','Precisión'])
+# for i in range(2,50,10):
+#     for j in range(2,50,10):
+#         arbol = DecisionTreeClassifier(
+#         criterion='entropy',
+#         splitter='best',
+#         max_depth=10,
+#         min_samples_split=j,
+#         min_samples_leaf=i,
+#         random_state=2)
+#         scores = cross_val_score(arbol, X_train, y_train, cv=5)
+#         data2.loc[len(data2)]=[10,'entropy',j,i,scores.mean()] 
 
 #%%
+#(descomentar data2 para ver la visualizacion)
 
 #graficamos
-graf = plt.scatter(data2['min_samples_split'],data2['min_samples_leaf'], c=data2['Precisión'])
-plt.xlabel('min_samples_split')
-plt.ylabel('min_samples_leaf')
-plt.colorbar()
-plt.show()
+# graf = plt.scatter(data2['min_samples_split'],data2['min_samples_leaf'], c=data2['Precisión'])
+# plt.xlabel('min_samples_split')
+# plt.ylabel('min_samples_leaf')
+# plt.colorbar()
+# plt.show()
 
-cbar = plt.colorbar(graf)
-cbar.set_label('Precisión')
+# cbar = plt.colorbar(graf)
+#cbar.set_label('Precisión')
 #%% 3d)
 
 #Utilizamos el test con nuestro modelo y sacamos el acuracy
+data = pd.DataFrame(columns=['Profundidad','Precisión'])
 arbol = DecisionTreeClassifier(criterion='entropy',
         splitter='best',
         max_depth=10,
@@ -748,13 +764,38 @@ arbol = DecisionTreeClassifier(criterion='entropy',
         min_samples_leaf=1,
         max_features=None,
         random_state=0)
-
-scores = cross_val_score(arbol, X_train, y_train, cv=5)
-desempeño = str(scores.mean()*100)
-print("Desempeño del modelo de árbol final: " + desempeño + "%" )
+    
+arbol.fit(X_train, y_train)
+prediction = arbol.predict(X_test)
+accuracy = accuracy_score(y_test, prediction)
 
 #%%
+#creo una carpeta para guardar mis resultados
+carpeta = 'Resultados_Multiclase' 
+os.makedirs(carpeta, exist_ok=True)
 
+#realizo un reporte del modelo elegido
+reporteModelo=classification_report(y_test, prediction)
+print(reporteModelo)
 
-print(classification_report(y_test, prediction))
-print(confusion_matrix(y_test, prediction))
+#exporto a txt 
+ruta_reporte = os.path.join(carpeta,"ReporteModelo.txt")
+with open(ruta_reporte, 'w') as archivo:
+    archivo.write(reporteModelo)
+
+#realizo la matriz de confusion
+etiquetas_clase = np.unique(y_test) #   ME guardo las etiquetas
+matriz_confusion_array = confusion_matrix(y_test, prediction, labels=etiquetas_clase)
+
+#paso a dataframe con las etiquetas
+# filas son true y Las columnas son los predicted 
+df_matriz_confusion = pd.DataFrame(
+    matriz_confusion_array,
+    index=[f'Real {i}' for i in etiquetas_clase],     
+    columns=[f'Predicho {i}' for i in etiquetas_clase])
+print(df_matriz_confusion)
+
+#exporto a csv
+ruta_matriz = os.path.join(carpeta, 'MatrizDeConfusion_Final.csv')
+df_matriz_confusion.to_csv(ruta_matriz, index=True)
+df_matriz_confusion.to_csv('MatrizDeConfusion_multiclase.csv', index=True) 
