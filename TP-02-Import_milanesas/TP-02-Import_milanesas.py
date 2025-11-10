@@ -796,6 +796,5 @@ df_matriz_confusion = pd.DataFrame(
 print(df_matriz_confusion)
 
 #exporto a csv
-ruta_matriz = os.path.join(carpeta, 'MatrizDeConfusion_Final.csv')
+ruta_matriz = os.path.join(carpeta, 'MatrizDeConfusion_multiclase.csv')
 df_matriz_confusion.to_csv(ruta_matriz, index=True)
-df_matriz_confusion.to_csv('MatrizDeConfusion_multiclase.csv', index=True) 
