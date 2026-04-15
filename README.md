@@ -1,5 +1,4 @@
-README.md
-Clasificación de Caracteres Kuzushiji-MNIST 🏯
+# Clasificación de Caracteres Kuzushiji-MNIST 🏯
 
 Este proyecto realiza un análisis exploratorio profundo y aplica modelos de Machine Learning para la clasificación de caracteres japoneses antiguos (Kuzushiji-MNIST). El enfoque principal radica en la selección estratégica de atributos (píxeles) basada en variabilidad y poder discriminatorio (Fisher Score).
 
